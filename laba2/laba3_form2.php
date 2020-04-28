@@ -12,28 +12,25 @@
 
     $soft_name=$_GET["software_name"];
 
-    $conn = (new MongoDB\Client)->computer->computers;
+    $conn = (new MongoDB\Client)->computers->computer;
     $cursor = $conn->find(
         [
-            'license_pz'=>"$soft_name"
+            'license_pz'=>$soft_name
         ]
         );
     $arr = $cursor->toArray();
-    $computer_id = json_decode(json_encode($arr[0][id]), true);
-    $computer_pz = json_decode(json_encode($arr[0][license_pz]), true);
+    $temp_json = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($arr));
+    $arr_php = json_decode($temp_json, true);
+
     $temp_key = array();
     $temp_value = array();
     $arr_counter = 0;
-    for($i=0; $i<count($computer_id); $i++)
+    for($i=0; $i<count($arr_php); $i++)
     {
-        if($soft_name == $computer_pz[$i]){
-            $temp_key[$arr_counter] = $soft_name;
-            $temp_value[$arr_counter] = $computer_id[$i];
-            echo "<tr><th><h3>$computer_id[$i]</h3></th><th><h3>$computer_pz[$i]</h3></th></tr>";
-            echo "\n";
-            $arr_counter++;
-        }
-        
+        $temp_key[$arr_counter]= ($arr_php[$i]["license_pz"]);
+        $temp_value[$arr_counter] = ($arr_php[$i]["id"]);
+        echo ("<tr><th><h3>$temp_value[$arr_counter]</h3></th><th><h3>$temp_key[$arr_counter]</h3></th></tr>");
+        $arr_counter++;
     }
 
 ?>

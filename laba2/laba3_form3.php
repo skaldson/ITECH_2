@@ -10,23 +10,20 @@
     echo "<tr><th>netname</th><th>guarantee</th><th>today</th></tr>";
     require './autoload.php';   
 
-    $conn = (new MongoDB\Client)->computer->computers;
+    $conn = (new MongoDB\Client)->computers->computer;
     $cursor = $conn->find();
     $arr = $cursor->toArray();
-    $computer_id = json_decode(json_encode($arr[0][id]), true);
-    $utcdatetime = new MongoDB\BSON\UTCDateTime();
-    $datetime = $utcdatetime->toDateTime();
-    $today = ($datetime->format('r'));
-    $computer_guarantee = json_decode(json_encode($arr[0][guarantee]), true);
+    $temp_json = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($arr));
+    $arr_php = json_decode($temp_json, true);
 
-    for($i=0; $i<count($computer_id); $i++)
+    for($i=0; $i<count($arr_php); $i++)
     {
-        $temp = ($computer_guarantee[$i]);
-        $temp = date("d M, Y",strtotime(date($temp)));
-        $today = date("d M, Y",strtotime(date("c")));
+        $guarantee = date($arr_php[$i]["guarantee"]);
+        $today = date("Y-m-d");
+        $computer_id = $arr_php[$i]["id"];
         
-        if($temp > $today){
-            echo "<tr><th><h3>$computer_id[$i]</h3></th><th><h3>$temp</h3></th><th><h3>$today</h3></th></tr>";
+        if($guarantee < $today){
+            echo "<tr><th><h3>$computer_id</h3></th><th><h3>$guarantee</h3></th><th><h3>$today</h3></th></tr>";
         }
     }
     

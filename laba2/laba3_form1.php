@@ -11,28 +11,24 @@
 
     require './autoload.php';
     $vendorname=$_GET["vendorname"];
-    $conn = (new MongoDB\Client)->computer->computers;
+    $conn = (new MongoDB\Client)->computers->computer;
     $cursor = $conn->find(
         [
-            'processor'=>"$vendorname"
+            'processor'=>$vendorname
         ]);
-    
     $arr = $cursor->toArray();
-    $computer_id = json_decode(json_encode($arr[0][id]), true);
-    $computer_processor = json_decode(json_encode($arr[0][processor]), true);
+    $temp_json = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($arr));
+    $arr_php = json_decode($temp_json, true);
+
     $temp_key = array();
     $temp_value = array();
     $arr_counter = 0;
-    for($i=0; $i<count($computer_id); $i++)
+    for($i=0; $i<count($arr_php); $i++)
     {
-        if($vendorname == $computer_processor[$i]){
-            $temp_key[$arr_counter] = $vendorname;
-            $temp_value[$arr_counter] = $computer_id[$i];
-            echo "<tr><th><h3>$computer_id[$i]</h3></th><th><h3>$computer_processor[$i]</h3></th></tr>";
-            echo "\n";
-            $arr_counter++;
-        }
-        
+        $temp_key[$arr_counter]= ($arr_php[$i]["processor"]);
+        $temp_value[$arr_counter] = ($arr_php[$i]["id"]);
+        echo ("<tr><th><h3>$temp_value[$arr_counter]</h3></th><th><h3>$temp_key[$arr_counter]</h3></th></tr>");
+        $arr_counter++;
     }
 ?>
 <body onload="addToLocalStorage();">
